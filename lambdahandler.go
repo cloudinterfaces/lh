@@ -56,7 +56,7 @@ import (
 // modification of Location headers.
 var FixRelativeRedirect = true
 
-// PanicMessage is returned as 
+// PanicMessage is returned as
 // the body of the 500 HTTP response
 // when unrecovered panics occur.
 var PanicMessage = "Function panic"
@@ -107,17 +107,17 @@ func (r *responsewriter) WriteHeader(code int) {
 }
 
 // Service implements the Lambda Function API.
-type Service struct {
+type service struct {
 	http http.Handler
 }
 
 // Ping is the Lambda keepalive.
-func (s *Service) Ping(req *messages.PingRequest, response *messages.PingResponse) error {
+func (s *service) Ping(req *messages.PingRequest, response *messages.PingResponse) error {
 	*response = messages.PingResponse{}
 	return nil
 }
 
-func (s *Service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeResponse) error {
+func (s *service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeResponse) error {
 	defer func() {
 		if err := recover(); err != nil {
 			pr := events.APIGatewayProxyResponse{
@@ -193,7 +193,7 @@ func (s *Service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeRe
 }
 
 // Invoke is the Lambda RPC call.
-func (s *Service) Invoke(req *messages.InvokeRequest, response *messages.InvokeResponse) error {
+func (s *service) Invoke(req *messages.InvokeRequest, response *messages.InvokeResponse) error {
 	return s.invokehttp(req, response)
 }
 
@@ -219,7 +219,7 @@ func ServeHTTP(h http.Handler) {
 		http.Serve(l, h)
 		return
 	}
-	err = rpc.RegisterName("Function", &Service{http: h})
+	err = rpc.RegisterName("Function", &service{http: h})
 	if err != nil {
 		log.Fatal("failed to register handler function")
 	}
