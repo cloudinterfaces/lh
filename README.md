@@ -1,5 +1,5 @@
 # lh
-A package to serve http.Handlers in the Amazon Lambda Go runtime.
+A package to serve http.Handlers in the Amazon Lambda Go runtime. [![GoDoc](https://godoc.org/github.com/cloudinterfaces/lh?status.svg)](http://godoc.org/github.com/cloudinterfaces/lh)
 
 This is a replacement for the [lambda package](github.com/aws/aws-lambda-go/lambda) as published in the aws/aws-lambda-go repository. This package allows serving (many or most) http.Handlers.
 
