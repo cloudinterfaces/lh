@@ -24,7 +24,9 @@ var DemangleInputHeaders = false
 
 // MangleOutputHeaders controls
 // replacing output headers with X-Amzn-Remapped
-// headers. This should be
+// headers. If set, headers that need to be remapped
+// have an additional X-Amzn-Remapped header created
+// with the same value. This should be
 // set (if needed) prior to calling ServeHTTP.
 var MangleOutputHeaders = false
 
@@ -101,8 +103,11 @@ func mangle(h http.Header) {
 	for k := range h {
 		k = mh(k)
 		if _, ok := Mangle[k]; ok {
-			v := h.Get(k)
-			h.Set(fmt.Sprintf("X-Amzn-Remapped-%s", k), v)
+			newkey := fmt.Sprintf("X-Amzn-Remapped-%s", k)
+			if len(h.Get(newkey)) == 0 {
+				v := h.Get(k)
+				h.Set(newkey, v)
+			}
 		}
 	}
 }
