@@ -56,6 +56,11 @@ import (
 // modification of Location headers.
 var FixRelativeRedirect = true
 
+// PanicMessage is returned as 
+// the body of the 500 HTTP response
+// when unrecovered panics occur.
+var PanicMessage = "Function panic"
+
 // Lambda is an interface to retrieve Lambda-specific
 // types. A Lambda http.ResponseWriter supports
 // this type assertion.
@@ -113,6 +118,19 @@ func (s *Service) Ping(req *messages.PingRequest, response *messages.PingRespons
 }
 
 func (s *Service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeResponse) error {
+	defer func() {
+		if err := recover(); err != nil {
+			pr := events.APIGatewayProxyResponse{
+				StatusCode:      500,
+				Headers:         map[string]string{"Content-Type": "text/plain"},
+				Body:            base64.StdEncoding.EncodeToString([]byte(PanicMessage)),
+				IsBase64Encoded: true,
+			}
+			res.Payload, _ = json.Marshal(pr)
+			log.Printf("panic: %v\n", err)
+			log.Println(string(debug.Stack()))
+		}
+	}()
 	ctx, nonsense := context.WithDeadline(context.Background(), time.Unix(req.Deadline.Seconds, req.Deadline.Nanos).UTC())
 	defer nonsense()
 	e := events.APIGatewayProxyRequest{}
@@ -176,16 +194,6 @@ func (s *Service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeRe
 
 // Invoke is the Lambda RPC call.
 func (s *Service) Invoke(req *messages.InvokeRequest, response *messages.InvokeResponse) error {
-	defer func() {
-		if err := recover(); err != nil {
-			response.Error = &messages.InvokeResponse_Error{
-				Message:    fmt.Sprintf("%v", err),
-				Type:       "panic",
-				ShouldExit: true,
-			}
-			log.Println(string(debug.Stack()))
-		}
-	}()
 	return s.invokehttp(req, response)
 }
 
