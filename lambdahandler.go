@@ -157,6 +157,9 @@ func (s *service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeRe
 	for k, v := range e.Headers {
 		r.Header.Set(k, v)
 	}
+	if DemangleInputHeaders {
+		demangle(r.Header)
+	}
 	buf := new(bytes.Buffer)
 	rw := &responsewriter{
 		Writer: base64.NewEncoder(base64.StdEncoding, buf),
@@ -176,6 +179,9 @@ func (s *service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeRe
 			loc = fmt.Sprintf("/%s%s", e.RequestContext.Stage, loc)
 			rw.header.Set("Location", loc)
 		}
+	}
+	if MangleOutputHeaders {
+		mangle(rw.header)
 	}
 	headers := map[string]string{}
 	for k := range rw.header {

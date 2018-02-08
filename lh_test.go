@@ -13,7 +13,7 @@ import (
 )
 
 func TestInvoke(t *testing.T) {
-	s := &Service{http: http.DefaultServeMux}
+	s := &service{http: http.DefaultServeMux}
 	req := new(messages.InvokeRequest)
 	req.Payload = []byte(payload)
 	res := new(messages.InvokeResponse)
@@ -34,7 +34,7 @@ func TestInvoke(t *testing.T) {
 }
 
 func TestRoundTrip(t *testing.T) {
-	s := &Service{http: http.DefaultServeMux}
+	s := &service{http: http.DefaultServeMux}
 	err := rpc.RegisterName("Function", s)
 	if err != nil {
 		t.Fatal(err)
