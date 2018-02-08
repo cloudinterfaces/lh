@@ -106,6 +106,8 @@ func (r *responsewriter) WriteHeader(code int) {
 	r.statusCode = code
 }
 
+func (r *responsewriter) Flush() {}
+
 // Service implements the Lambda Function API.
 type service struct {
 	http http.Handler
