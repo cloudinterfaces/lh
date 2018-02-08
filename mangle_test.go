@@ -15,6 +15,16 @@ func TestMangle(t *testing.T) {
 	}
 }
 
+func TestNoMangle(t *testing.T) {
+	h := make(http.Header)
+	h.Set("Via", "127.0.0.1")
+	h.Set("X-Amzn-Remapped-Via", "10.10.10.10")
+	mangle(h)
+	if h.Get("X-Amzn-Remapped-Via") != "10.10.10.10" {
+		t.Fatal("No mangle should have happened")
+	}
+}
+
 func TestDemangle(t *testing.T) {
 	h := make(http.Header)
 	now := time.Now().Format(time.RFC850)
@@ -22,5 +32,15 @@ func TestDemangle(t *testing.T) {
 	demangle(h)
 	if h.Get("Date") != now {
 		t.Fatal("Demangle didn't happen")
+	}
+}
+
+func TestNoDemangle(t *testing.T) {
+	h := make(http.Header)
+	h.Set("Via", "127.0.0.1")
+	h.Set("X-Amzn-Remapped-Via", "10.10.10.10")
+	demangle(h)
+	if h.Get("Via") != "127.0.0.1" {
+		t.Fatal("No demangle should have happened")
 	}
 }
