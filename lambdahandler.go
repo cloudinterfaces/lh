@@ -152,7 +152,11 @@ func (s *service) invokehttp(req *messages.InvokeRequest, res *messages.InvokeRe
 		}
 		qs = fmt.Sprintf("?%s", vals.Encode())
 	}
-	u := fmt.Sprintf("%s%s", e.Path, qs)
+	pth := strings.TrimSpace(e.Path)
+	if len(pth) == 0 {
+		pth = `/`
+	}
+	u := fmt.Sprintf("%s%s", pth, qs)
 	r := httptest.NewRequest(e.HTTPMethod, u, sr).WithContext(ctx)
 	for k, v := range e.Headers {
 		r.Header.Set(k, v)
